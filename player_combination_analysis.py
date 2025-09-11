@@ -68,15 +68,26 @@ class FPLCombinationAnalyzer:
                 gameweek = 1
         return os.path.join(self.cache_dir, f"league_{league_id}_gw_{gameweek}_info.json")
 
+    def cache_exists(self, league_id: int, gameweek: int = None) -> bool:
+        """Check if cache files exist for the given league and gameweek."""
+        cache_file = self.get_cache_filename(league_id, gameweek)
+        info_file = self.get_cache_info_filename(league_id, gameweek)
+        return os.path.exists(cache_file) and os.path.exists(info_file)
+
     def save_manager_squads_cache(self, league_id: int, gameweek: int = None):
-        """Save manager squads to cache file."""
+        """Save manager squads and league data to cache file."""
         try:
             cache_file = self.get_cache_filename(league_id, gameweek)
             info_file = self.get_cache_info_filename(league_id, gameweek)
 
-            # Save the squads data
+            # Save the squads data along with league data
+            cache_data = {
+                'manager_squads': self.manager_squads,
+                'league_data': self.league_data
+            }
+            
             with open(cache_file, 'wb') as f:
-                pickle.dump(self.manager_squads, f)
+                pickle.dump(cache_data, f)
 
             # Save metadata
             cache_info = {
@@ -91,15 +102,15 @@ class FPLCombinationAnalyzer:
                 json.dump(cache_info, f, indent=2)
 
             print(
-                f"💾 Cached {len(self.manager_squads)} manager squads to {cache_file}")
+                f"💾 Cached {len(self.manager_squads)} manager squads and league data to {cache_file}")
             return True
 
         except Exception as e:
             print(f"❌ Error saving cache: {e}")
             return False
 
-    def load_manager_squads_cache(self, league_id: int, gameweek: int = None) -> bool:
-        """Load manager squads from cache file."""
+    def load_manager_squads_cache(self, league_id: int, gameweek: int = None, skip_prompt: bool = False) -> bool:
+        """Load manager squads and league data from cache file."""
         try:
             cache_file = self.get_cache_filename(league_id, gameweek)
             info_file = self.get_cache_info_filename(league_id, gameweek)
@@ -115,16 +126,31 @@ class FPLCombinationAnalyzer:
             cached_time = datetime.fromisoformat(cache_info['cached_at'])
             if datetime.now() - cached_time > timedelta(hours=1):
                 print(f"⚠️  Cache is older than 1 hour, might be stale")
-                use_cache = input(
-                    "Use cached data anyway? (y/n, default: y): ").lower()
-                if use_cache == 'n':
-                    return False
+                if not skip_prompt:
+                    use_cache = input(
+                        "Use cached data anyway? (y/n, default: y): ").lower()
+                    if use_cache == 'n':
+                        return False
+                else:
+                    # In web app context, use cache anyway since user expects speed
+                    print("📱 Web app context: using cache anyway for performance")
 
-            # Load the squads data
+            # Load the cached data
             with open(cache_file, 'rb') as f:
-                self.manager_squads = pickle.load(f)
+                cached_data = pickle.load(f)
 
-            print(f"📂 Loaded {len(self.manager_squads)} cached manager squads")
+            # Handle both old format (just manager squads) and new format (dict with both)
+            if isinstance(cached_data, dict) and 'manager_squads' in cached_data:
+                # New format with both manager squads and league data
+                self.manager_squads = cached_data['manager_squads']
+                self.league_data = cached_data.get('league_data')
+                print(f"📂 Loaded {len(self.manager_squads)} cached manager squads and league data (NEW FORMAT)")
+            else:
+                # Old format - just manager squads
+                self.manager_squads = cached_data
+                self.league_data = None
+                print(f"📂 Loaded {len(self.manager_squads)} cached manager squads (legacy format)")
+
             print(f"🕒 Cached at: {cache_info['cached_at']}")
             print(
                 f"📊 Coverage: {len(self.manager_squads)}/{cache_info['total_managers_in_league']} managers")

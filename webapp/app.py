@@ -6,7 +6,6 @@ A Flask web application for analyzing player combinations across FPL league mana
 Built on top of the existing FPL analysis tool with caching capabilities.
 """
 
-from player_combination_analysis import FPLCombinationAnalyzer
 import sys
 import os
 import json
@@ -15,6 +14,8 @@ from datetime import datetime
 
 # Add parent directory to path to import the analysis module
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from player_combination_analysis import FPLCombinationAnalyzer
 
 app = Flask(__name__)
 app.secret_key = 'fpl_analyzer_secret_key_change_in_production'
@@ -121,32 +122,46 @@ def load_league():
             current_gw = next((gw['id']
                               for gw in events if gw['is_current']), 1)
 
-        # Try to load cache first
-        cache_loaded = analyzer.load_manager_squads_cache(
-            league_id, current_gw)
+        # Check if cache exists before attempting to load
+        cache_available = analyzer.cache_exists(league_id, current_gw)
+        
+        if cache_available:
+            print(f"🚀 Cache found for league {league_id}, gameweek {current_gw} - loading immediately...")
+            # Try to load cache first (skip_prompt=True for web app)
+            cache_loaded = analyzer.load_manager_squads_cache(
+                league_id, current_gw, skip_prompt=True)
+        else:
+            print(f"📥 No cache found for league {league_id}, gameweek {current_gw} - will fetch fresh data")
+            cache_loaded = False
 
         if cache_loaded:
             # Set the current league ID so the analyzer knows which league is loaded
             analyzer.current_league_id = league_id
 
-            # When loading from cache, we need to ensure league standings are also available
-            # First check if we already have them in memory cache
+            # Check if we have league data from cache (new format) or need to fetch it (old format)
             cache_key = f"{league_id}_{current_gw}"
-            if cache_key not in league_standings_cache or not is_cache_valid(cache_key):
-                # Need to fetch league standings since they're not cached in memory
-                print(
-                    f"📊 Fetching league standings for cached league {league_id}...")
+            if analyzer.league_data and 'standings' in analyzer.league_data:
+                # New cache format - league data is available
+                league_standings = analyzer.league_data.get(
+                    'standings', {}).get('results', [])
+                league_standings_cache[cache_key] = league_standings
+                cache_timestamps[cache_key] = datetime.now()
+                print(f"⚡ League data loaded from cache for {cache_key}")
+            else:
+                # Old cache format or missing league data - fetch it once and cache it
+                print(f"📊 Fetching league standings for cached league {league_id} (one-time upgrade)...")
                 if analyzer.get_league_info(league_id):
-                    # Cache the league standings
+                    # Cache the league standings in memory
                     if analyzer.league_data and 'standings' in analyzer.league_data:
                         league_standings = analyzer.league_data.get(
                             'standings', {}).get('results', [])
                         league_standings_cache[cache_key] = league_standings
                         cache_timestamps[cache_key] = datetime.now()
-                        print(
-                            f"💾 Cached league standings for cached league {cache_key}")
-            else:
-                print(f"⚡ League standings already cached for {cache_key}")
+                        print(f"💾 Cached league standings for {cache_key}")
+                        
+                        # Update the cache file with the new format for next time
+                        analyzer.save_manager_squads_cache(league_id, current_gw)
+                        print(f"🔄 Updated cache to new format with league data")
 
             return jsonify({
                 'success': True,
@@ -542,7 +557,7 @@ if __name__ == '__main__':
 
     # Get configuration from environment variables
     debug_mode = os.getenv('FLASK_ENV', 'development') == 'development'
-    port = int(os.getenv('PORT', 5000))
+    port = int(os.getenv('PORT', 5001))
     host = os.getenv('HOST', '0.0.0.0')
 
     if debug_mode:
