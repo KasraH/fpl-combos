@@ -18,7 +18,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 app = Flask(__name__)
-app.secret_key = 'fpl_analyzer_secret_key_change_in_production'
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-change-in-production')
 
 # Global analyzer instance
 analyzer = FPLCombinationAnalyzer()
