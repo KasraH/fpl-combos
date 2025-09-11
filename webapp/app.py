@@ -539,12 +539,12 @@ def cache_info():
 
 if __name__ == '__main__':
     import os
-    
+
     # Get configuration from environment variables
     debug_mode = os.getenv('FLASK_ENV', 'development') == 'development'
     port = int(os.getenv('PORT', 5000))
     host = os.getenv('HOST', '0.0.0.0')
-    
+
     if debug_mode:
         print("🚀 Starting FPL Player Combination Web App (Development)...")
         print(f"📱 Open http://localhost:{port} in your browser")
@@ -552,5 +552,5 @@ if __name__ == '__main__':
     else:
         print("🚀 Starting FPL Player Combination Web App (Production)...")
         print(f"🌐 Running on {host}:{port}")
-    
+
     app.run(debug=debug_mode, host=host, port=port)

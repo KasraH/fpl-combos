@@ -3,6 +3,7 @@
 ## Quick Setup (Recommended)
 
 ### 1. Copy files to your VPS
+
 ```bash
 # On your local machine
 scp -r webapp/ user@your-vps-ip:/home/user/fpl-webapp/
@@ -14,6 +15,7 @@ cd fpl-webapp/webapp
 ```
 
 ### 2. Deploy with Docker Compose
+
 ```bash
 # On your VPS
 cd /home/user/fpl-webapp
@@ -21,6 +23,7 @@ docker-compose up -d --build
 ```
 
 ### 3. Set up Nginx (if not already configured)
+
 ```bash
 # Copy nginx config
 sudo cp nginx.conf.example /etc/nginx/sites-available/fpl-webapp
@@ -32,12 +35,14 @@ sudo systemctl reload nginx
 ## Alternative: Manual Setup
 
 ### 1. Install Python and dependencies
+
 ```bash
 sudo apt update
 sudo apt install python3 python3-pip python3-venv nginx
 ```
 
 ### 2. Set up the application
+
 ```bash
 cd /home/user
 git clone <your-repo> fpl-webapp
@@ -49,11 +54,13 @@ pip install -r requirements.txt
 ```
 
 ### 3. Create systemd service
+
 ```bash
 sudo nano /etc/systemd/system/fpl-webapp.service
 ```
 
 Add this content:
+
 ```ini
 [Unit]
 Description=FPL Player Combination Web App
@@ -74,6 +81,7 @@ WantedBy=multi-user.target
 ```
 
 ### 4. Start the service
+
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable fpl-webapp
@@ -84,11 +92,13 @@ sudo systemctl status fpl-webapp
 ## Configuration Options
 
 ### Environment Variables
+
 - `FLASK_ENV`: Set to `production` for production deployment
 - `PORT`: Port to run on (default: 5000)
 - `HOST`: Host to bind to (default: 0.0.0.0)
 
 ### Nginx Configuration
+
 - Update `your-domain.com` in nginx.conf.example with your actual domain/IP
 - If you don't have SSL, comment out SSL-related lines
 - Adjust SSL certificate paths if needed
@@ -96,6 +106,7 @@ sudo systemctl status fpl-webapp
 ## Monitoring
 
 ### Check logs
+
 ```bash
 # Docker logs
 docker-compose logs -f fpl-webapp
@@ -109,6 +120,7 @@ sudo tail -f /var/log/nginx/error.log
 ```
 
 ### Health check
+
 ```bash
 curl http://localhost:5000/
 ```
@@ -116,6 +128,7 @@ curl http://localhost:5000/
 ## Maintenance
 
 ### Update the app
+
 ```bash
 # Pull latest changes
 git pull
@@ -129,6 +142,7 @@ sudo systemctl restart fpl-webapp
 ```
 
 ### Backup cache
+
 ```bash
 # The cache is stored in ./fpl_cache/
 tar -czf fpl-cache-backup-$(date +%Y%m%d).tar.gz fpl_cache/
@@ -137,6 +151,7 @@ tar -czf fpl-cache-backup-$(date +%Y%m%d).tar.gz fpl_cache/
 ## Firewall
 
 Make sure your VPS firewall allows the port:
+
 ```bash
 # UFW example
 sudo ufw allow 80

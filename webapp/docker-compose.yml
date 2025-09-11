@@ -1,12 +1,12 @@
-version: '3.8'
-
 services:
   fpl-webapp:
-    build: .
+    build:
+      context: ..
+      dockerfile: webapp/Dockerfile
     container_name: fpl-webapp
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - '5001:5000'
     volumes:
       # Persistent cache storage
       - ./fpl_cache:/app/fpl_cache
