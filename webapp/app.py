@@ -6,6 +6,7 @@ A Flask web application for analyzing player combinations across FPL league mana
 Built on top of the existing FPL analysis tool with caching capabilities.
 """
 
+from player_combination_analysis import FPLCombinationAnalyzer
 import sys
 import os
 import json
@@ -15,7 +16,6 @@ from datetime import datetime
 # Add parent directory to path to import the analysis module
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from player_combination_analysis import FPLCombinationAnalyzer
 
 app = Flask(__name__)
 app.secret_key = 'fpl_analyzer_secret_key_change_in_production'
@@ -85,6 +85,27 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint for load balancer/monitoring."""
+    try:
+        # Basic health checks
+        status = {
+            'status': 'healthy',
+            'timestamp': datetime.now().isoformat(),
+            'version': '1.0.0',
+            'cache_dir_exists': os.path.exists(analyzer.cache_dir),
+            'bootstrap_loaded': analyzer.bootstrap_data is not None
+        }
+        return jsonify(status), 200
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+
 @app.route('/api/load_league', methods=['POST'])
 def load_league():
     """Load league data."""
@@ -124,14 +145,16 @@ def load_league():
 
         # Check if cache exists before attempting to load
         cache_available = analyzer.cache_exists(league_id, current_gw)
-        
+
         if cache_available:
-            print(f"🚀 Cache found for league {league_id}, gameweek {current_gw} - loading immediately...")
+            print(
+                f"🚀 Cache found for league {league_id}, gameweek {current_gw} - loading immediately...")
             # Try to load cache first (skip_prompt=True for web app)
             cache_loaded = analyzer.load_manager_squads_cache(
                 league_id, current_gw, skip_prompt=True)
         else:
-            print(f"📥 No cache found for league {league_id}, gameweek {current_gw} - will fetch fresh data")
+            print(
+                f"📥 No cache found for league {league_id}, gameweek {current_gw} - will fetch fresh data")
             cache_loaded = False
 
         if cache_loaded:
@@ -149,7 +172,8 @@ def load_league():
                 print(f"⚡ League data loaded from cache for {cache_key}")
             else:
                 # Old cache format or missing league data - fetch it once and cache it
-                print(f"📊 Fetching league standings for cached league {league_id} (one-time upgrade)...")
+                print(
+                    f"📊 Fetching league standings for cached league {league_id} (one-time upgrade)...")
                 if analyzer.get_league_info(league_id):
                     # Cache the league standings in memory
                     if analyzer.league_data and 'standings' in analyzer.league_data:
@@ -158,9 +182,10 @@ def load_league():
                         league_standings_cache[cache_key] = league_standings
                         cache_timestamps[cache_key] = datetime.now()
                         print(f"💾 Cached league standings for {cache_key}")
-                        
+
                         # Update the cache file with the new format for next time
-                        analyzer.save_manager_squads_cache(league_id, current_gw)
+                        analyzer.save_manager_squads_cache(
+                            league_id, current_gw)
                         print(f"🔄 Updated cache to new format with league data")
 
             return jsonify({
