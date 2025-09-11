@@ -1,9 +1,11 @@
 # FPL Webapp VPS Deployment Guide
 
 ## Overview
+
 This guide helps you deploy the FPL Player Combination Analysis webapp to your VPS using Docker, alongside your existing Brook VPN and Telegram bot.
 
 ## Prerequisites
+
 - VPS with Docker and Docker Compose installed
 - Domain name with SSL certificate from Namespace
 - Nginx installed on VPS
@@ -12,6 +14,7 @@ This guide helps you deploy the FPL Player Combination Analysis webapp to your V
 ## Quick Setup
 
 ### 1. Push Code to GitHub (if not already done)
+
 ```bash
 cd /Users/kasrahosseini/projects/fpl_player_combination
 git add .
@@ -20,6 +23,7 @@ git push origin master
 ```
 
 ### 2. Connect to Your VPS and Deploy
+
 ```bash
 ssh your-username@your-vps-ip
 

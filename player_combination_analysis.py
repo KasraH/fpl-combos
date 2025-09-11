@@ -85,7 +85,7 @@ class FPLCombinationAnalyzer:
                 'manager_squads': self.manager_squads,
                 'league_data': self.league_data
             }
-            
+
             with open(cache_file, 'wb') as f:
                 pickle.dump(cache_data, f)
 
@@ -144,12 +144,14 @@ class FPLCombinationAnalyzer:
                 # New format with both manager squads and league data
                 self.manager_squads = cached_data['manager_squads']
                 self.league_data = cached_data.get('league_data')
-                print(f"📂 Loaded {len(self.manager_squads)} cached manager squads and league data (NEW FORMAT)")
+                print(
+                    f"📂 Loaded {len(self.manager_squads)} cached manager squads and league data (NEW FORMAT)")
             else:
                 # Old format - just manager squads
                 self.manager_squads = cached_data
                 self.league_data = None
-                print(f"📂 Loaded {len(self.manager_squads)} cached manager squads (legacy format)")
+                print(
+                    f"📂 Loaded {len(self.manager_squads)} cached manager squads (legacy format)")
 
             print(f"🕒 Cached at: {cache_info['cached_at']}")
             print(
