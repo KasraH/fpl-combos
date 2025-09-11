@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  fpl-webapp:
+    build: .
+    container_name: fpl-webapp
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      # Persistent cache storage
+      - ./fpl_cache:/app/fpl_cache
+      # Optional: Mount config if needed
+      # - ./config:/app/config:ro
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    networks:
+      - fpl-network
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+networks:
+  fpl-network:
+    driver: bridge
