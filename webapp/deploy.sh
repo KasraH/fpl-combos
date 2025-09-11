@@ -8,8 +8,8 @@ echo "🚀 Deploying FPL Webapp to VPS..."
 
 # Configuration
 APP_NAME="fpl-webapp"
-REPO_URL="https://github.com/yourusername/fpl_player_combination.git"  # Update this
-DOMAIN="yourdomain.me"  # Update this
+REPO_URL="https://github.com/KasraH/fpl-combos.git"
+DOMAIN="fplcombos.me"
 APP_DIR="/home/$(whoami)/apps/fpl-webapp"
 NGINX_CONFIG="/etc/nginx/sites-available/fpl-webapp"
 
