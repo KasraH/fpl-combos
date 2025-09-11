@@ -188,24 +188,6 @@
                   </small>
                 </div>
               </div>
-
-              <!-- Progress Bar -->
-              <div id="loadingProgress" class="mt-3" style="display: none;">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <small id="progressMessage" class="text-muted">Loading...</small>
-                  <small id="progressPercent" class="text-muted">0%</small>
-                </div>
-                <div class="progress" style="height: 8px;">
-                  <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
-                       role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                  </div>
-                </div>
-                <div id="progressDetails" class="mt-1" style="display: none;">
-                  <small class="text-muted">
-                    <span id="fetchedCount">0</span> / <span id="totalCount">0</span> managers fetched
-                  </small>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -302,8 +284,8 @@
       let selectedPlayers = []
       let leagueLoaded = false
 
-      // Load league data with progress
-      function loadLeague() {
+      // Load league data
+      async function loadLeague() {
         const leagueId = document.getElementById('leagueId').value.trim()
 
         if (!leagueId) {
@@ -313,97 +295,38 @@
 
         const loadButton = document.querySelector('#loadLeagueText')
         const spinner = document.getElementById('loadLeagueSpinner')
-        const progressDiv = document.getElementById('loadingProgress')
-        const progressBar = document.getElementById('progressBar')
-        const progressMessage = document.getElementById('progressMessage')
-        const progressPercent = document.getElementById('progressPercent')
-        const progressDetails = document.getElementById('progressDetails')
-        const fetchedCount = document.getElementById('fetchedCount')
-        const totalCount = document.getElementById('totalCount')
 
-        // Reset UI
         loadButton.textContent = 'Loading...'
         spinner.style.display = 'inline-block'
-        progressDiv.style.display = 'block'
-        progressBar.style.width = '0%'
-        progressBar.setAttribute('aria-valuenow', '0')
-        progressMessage.textContent = 'Starting...'
-        progressPercent.textContent = '0%'
-        progressDetails.style.display = 'none'
 
-        // Create EventSource for progress updates
-        const eventSource = new EventSource(`/api/load_league_progress/${leagueId}`)
+        try {
+          const response = await fetch('/api/load_league', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ league_id: parseInt(leagueId) }),
+          })
 
-        eventSource.onmessage = function(event) {
-          try {
-            const data = JSON.parse(event.data)
-            
-            switch(data.status) {
-              case 'initializing':
-              case 'progress':
-                progressMessage.textContent = data.message
-                break
-                
-              case 'fetching':
-                progressMessage.textContent = data.message
-                progressPercent.textContent = `${data.progress}%`
-                progressBar.style.width = `${data.progress}%`
-                progressBar.setAttribute('aria-valuenow', data.progress)
-                
-                // Show detailed progress
-                progressDetails.style.display = 'block'
-                fetchedCount.textContent = data.fetched
-                totalCount.textContent = data.total
-                break
-                
-              case 'complete':
-                progressMessage.textContent = data.message
-                progressPercent.textContent = '100%'
-                progressBar.style.width = '100%'
-                progressBar.setAttribute('aria-valuenow', '100')
-                progressBar.classList.remove('progress-bar-animated')
-                progressBar.classList.add('bg-success')
-                
-                // Update status
-                leagueLoaded = true
-                showLeagueStatus(
-                  `✅ ${data.message}`,
-                  'success'
-                )
-                updateAnalyzeButton()
-                loadCacheInfo()
-                
-                // Hide progress after 3 seconds
-                setTimeout(() => {
-                  progressDiv.style.display = 'none'
-                }, 3000)
-                
-                eventSource.close()
-                break
-                
-              case 'error':
-                showLeagueStatus(`❌ ${data.message}`, 'danger')
-                progressDiv.style.display = 'none'
-                eventSource.close()
-                break
-            }
-          } catch (error) {
-            console.error('Error parsing progress data:', error)
+          const data = await response.json()
+
+          if (data.success) {
+            leagueLoaded = true
+            showLeagueStatus(
+              `✅ ${data.message} (${data.manager_count} managers)`,
+              'success'
+            )
+            updateAnalyzeButton()
+            loadCacheInfo()
+          } else {
+            showLeagueStatus(`❌ ${data.error}`, 'danger')
           }
-        }
-
-        eventSource.onerror = function(error) {
-          console.error('EventSource failed:', error)
-          showLeagueStatus('❌ Connection error while loading league', 'danger')
-          progressDiv.style.display = 'none'
-          eventSource.close()
-        }
-
-        // Always reset button after some time
-        setTimeout(() => {
+        } catch (error) {
+          showLeagueStatus(`❌ Error: ${error.message}`, 'danger')
+        } finally {
           loadButton.textContent = 'Load League'
           spinner.style.display = 'none'
-        }, 1000)
+        }
       }
 
       // Show league status
