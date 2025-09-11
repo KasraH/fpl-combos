@@ -1,46 +1,48 @@
-# FPL Player Combination Web App
+# FPL Player Combination Analysis
 
-A user-friendly web interface for analyzing player combinations across FPL league managers. This web app makes the powerful command-line FPL analysis tool accessible to non-technical users through a modern, intuitive interface.
+A powerful web application for analyzing player combinations across Fantasy Premier League (FPL) leagues. Discover which managers in your league have specific player combinations and analyze ownership patterns.
 
 ## ✨ Features
 
-- **🌐 Web-based interface** - No command line knowledge required
-- **🔍 Player search** - Easy player selection with autocomplete
-- **📊 Visual results** - Clean, organized display of analysis results
-- **💾 Smart caching** - Reuses existing cache data for fast subsequent searches
-- **📱 Mobile friendly** - Works on desktop, tablet, and mobile devices
-- **⚡ Real-time search** - Instant player suggestions as you type
+- **🌐 Modern web interface** - Clean, responsive design that works on all devices
+- **🔍 Smart player search** - Intelligent autocomplete with fuzzy matching
+- **📊 Detailed analytics** - Comprehensive results with manager details and statistics
+- **💾 Intelligent caching** - Lightning-fast performance with advanced caching system
+- **📱 Mobile optimized** - Perfect experience on desktop, tablet, and mobile
+- **⚡ Instant analysis** - Real-time search and immediate results
+- **🚀 Production ready** - Docker containerized with CDN support
 
 ## 🚀 Quick Start
 
-### For Non-Technical Users
-
-1. **Download the files** to your computer
-2. **Open Terminal** (Mac/Linux) or **Command Prompt** (Windows)
-3. **Navigate** to the webapp folder:
-   ```bash
-   cd path/to/fpl_player_combination/webapp
-   ```
-4. **Run the setup script**:
-   - **Mac/Linux**: `bash setup.sh`
-   - **Windows**: Double-click `setup.bat`
-5. **Start the web app**:
-   ```bash
-   python3 app.py
-   ```
-6. **Open your browser** and go to: http://localhost:5001
-
-### Manual Installation
-
-If the setup script doesn't work, install manually:
+### Local Development
 
 ```bash
-# Install Python packages
-pip install flask requests pandas
+# Clone the repository
+git clone https://github.com/KasraH/fpl-combos.git
+cd fpl-combos/webapp
 
-# Start the web app
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the application
 python3 app.py
 ```
+
+Visit http://localhost:5001 in your browser.
+
+### Production Deployment
+
+This application is designed for VPS deployment with Docker and CDN support:
+
+```bash
+# Deploy to VPS
+./deploy.sh
+
+# Or manually with Docker
+docker-compose up -d
+```
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) and [CDN_SETUP.md](CDN_SETUP.md) for detailed deployment instructions.
 
 ## 📖 How to Use
 
@@ -78,95 +80,80 @@ python3 app.py
 - **Player Names**: Use common player names (web names) like "Salah" instead of "Mohamed Salah"
 - **Large Leagues**: The tool works with leagues of any size, but larger leagues take longer to load initially
 
-## 🔧 Technical Details
+## 🏗️ Architecture
 
-### System Requirements
+### Technology Stack
 
-- Python 3.7 or higher
-- Web browser (Chrome, Firefox, Safari, Edge)
-- Internet connection (for FPL API)
+- **Backend**: Flask (Python 3.11+)
+- **Frontend**: Modern HTML5/CSS3/JavaScript
+- **Caching**: Intelligent disk-based caching with automatic upgrades
+- **Deployment**: Docker + Docker Compose
+- **Reverse Proxy**: Nginx with CDN optimization
+- **SSL/CDN**: Namespace CDN integration
 
-### Dependencies
+### Performance Features
 
-- Flask 2.3.3 - Web framework
-- Requests 2.31.0 - HTTP library
-- Pandas 2.1.1 - Data analysis
+- **Smart Caching**: Eliminates redundant API calls for cached leagues
+- **Batch Processing**: Efficient concurrent manager data fetching  
+- **CDN Integration**: Global content delivery for optimal performance
+- **Resource Optimization**: Memory-efficient data processing for large leagues
 
-### Port and Access
-
-- Default port: 5000
-- Local access: http://localhost:5001
-- Network access: http://YOUR_IP:5001 (accessible to other devices on your network)
-
-## 📁 File Structure
+## 📁 Project Structure
 
 ```
-webapp/
-├── app.py              # Main Flask application
-├── templates/
-│   └── index.html      # Web interface
-├── requirements.txt    # Python dependencies
-├── setup.sh           # Mac/Linux setup script
-├── setup.bat          # Windows setup script
-└── README.md          # This file
+├── player_combination_analysis.py   # Core analysis engine
+├── webapp/
+│   ├── app.py                      # Flask web application
+│   ├── wsgi.py                     # Production WSGI entry point
+│   ├── templates/
+│   │   └── index.html              # Web interface
+│   ├── docker-compose.yml          # Docker orchestration
+│   ├── Dockerfile                  # Container configuration
+│   ├── nginx-fpl.conf             # Nginx reverse proxy config
+│   ├── deploy.sh                   # Automated deployment script
+│   ├── requirements.txt            # Python dependencies
+│   ├── DEPLOYMENT.md              # Deployment guide
+│   └── CDN_SETUP.md               # CDN configuration guide
+└── fpl_cache/                      # Cached league data
 ```
 
-## 🔄 Cache Integration
+## 🔄 Intelligent Caching System
 
-The web app automatically uses the existing cache system from the command-line tool:
+Advanced caching ensures optimal performance:
 
-- Cache files are stored in `../fpl_cache/`
-- Previously loaded leagues are instantly available
-- Cache information is displayed at the bottom of the page
+- **Automatic Cache Detection**: Instantly recognizes available cached leagues
+- **Zero API Calls**: Cached leagues load without any external requests  
+- **Cache Upgrades**: Seamlessly upgrades legacy cache formats
+- **Memory Optimization**: Efficient in-memory caching for analysis operations
+- **Cache Management**: Built-in cache information and cleanup tools
 
-## 🚨 Troubleshooting
+## 🚨 Common Issues
 
-### "Flask not found" Error
+### Player Search Tips
+- Use common names: "Salah" instead of "Mohamed Salah"  
+- Try partial matches: "Haal" for Haaland
+- Names are case-insensitive and fuzzy-matched
 
-```bash
-pip install flask
-# or
-pip3 install flask
-```
+### Performance Notes  
+- First-time league loading requires API calls (may take 1-2 minutes for large leagues)
+- Subsequent loads from cache are instant
+- Analysis operations are always fast regardless of league size
 
-### "Port already in use" Error
+## 🔒 Security & Privacy
 
-- Close other applications using port 5001
-- Or change the port in `app.py`: `app.run(port=5002)`
+- **No Data Storage**: No personal FPL credentials required or stored
+- **Public API Only**: Uses official FPL public API endpoints  
+- **Local Caching**: All data cached locally, not shared externally
+- **Production Security**: Includes security headers and proper SSL configuration
 
-### League Loading Fails
+## 🌟 Key Benefits
 
-- Check your internet connection
-- Verify the League ID is correct
-- Try a smaller league first to test
+- **⚡ Performance**: Intelligent caching eliminates repeated API calls
+- **📊 Analytics**: Deep insights into league player ownership patterns  
+- **🔍 Discovery**: Find unique player combinations and ownership trends
+- **📱 Accessibility**: Works on any device with a modern web browser
+- **🚀 Scalability**: Handles leagues of any size efficiently
 
-### Players Not Found
+## 📄 License
 
-- Use common player names (e.g., "Salah" not "Mohamed Salah")
-- Try partial names (e.g., "Haal" for Haaland)
-- Check spelling
-
-## 🔒 Security Note
-
-This web app is designed for local use. If sharing with others:
-
-- Only share with trusted users on your local network
-- The app runs on your computer and accesses FPL data using your connection
-- No personal FPL data is collected or stored
-
-## 📞 Support
-
-If you encounter issues:
-
-1. Check the troubleshooting section above
-2. Ensure all dependencies are installed
-3. Try restarting the web app
-4. Check the terminal/command prompt for error messages
-
-## 🔗 Related Files
-
-This web app uses the core analysis engine from:
-
-- `../player_combination_analysis.py` - Main analysis logic
-- `../cache_manager.py` - Cache management
-- `../fpl_cache/` - Cached league data
+This project is open source. Feel free to use, modify, and distribute.
