@@ -94,7 +94,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) and [CDN_SETUP.md](CDN_SETUP.md) for detailed
 ### Performance Features
 
 - **Smart Caching**: Eliminates redundant API calls for cached leagues
-- **Batch Processing**: Efficient concurrent manager data fetching  
+- **Batch Processing**: Efficient concurrent manager data fetching
 - **CDN Integration**: Global content delivery for optimal performance
 - **Resource Optimization**: Memory-efficient data processing for large leagues
 
@@ -122,7 +122,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) and [CDN_SETUP.md](CDN_SETUP.md) for detailed
 Advanced caching ensures optimal performance:
 
 - **Automatic Cache Detection**: Instantly recognizes available cached leagues
-- **Zero API Calls**: Cached leagues load without any external requests  
+- **Zero API Calls**: Cached leagues load without any external requests
 - **Cache Upgrades**: Seamlessly upgrades legacy cache formats
 - **Memory Optimization**: Efficient in-memory caching for analysis operations
 - **Cache Management**: Built-in cache information and cleanup tools
@@ -130,11 +130,13 @@ Advanced caching ensures optimal performance:
 ## 🚨 Common Issues
 
 ### Player Search Tips
-- Use common names: "Salah" instead of "Mohamed Salah"  
+
+- Use common names: "Salah" instead of "Mohamed Salah"
 - Try partial matches: "Haal" for Haaland
 - Names are case-insensitive and fuzzy-matched
 
-### Performance Notes  
+### Performance Notes
+
 - First-time league loading requires API calls (may take 1-2 minutes for large leagues)
 - Subsequent loads from cache are instant
 - Analysis operations are always fast regardless of league size
@@ -142,14 +144,14 @@ Advanced caching ensures optimal performance:
 ## 🔒 Security & Privacy
 
 - **No Data Storage**: No personal FPL credentials required or stored
-- **Public API Only**: Uses official FPL public API endpoints  
+- **Public API Only**: Uses official FPL public API endpoints
 - **Local Caching**: All data cached locally, not shared externally
 - **Production Security**: Includes security headers and proper SSL configuration
 
 ## 🌟 Key Benefits
 
 - **⚡ Performance**: Intelligent caching eliminates repeated API calls
-- **📊 Analytics**: Deep insights into league player ownership patterns  
+- **📊 Analytics**: Deep insights into league player ownership patterns
 - **🔍 Discovery**: Find unique player combinations and ownership trends
 - **📱 Accessibility**: Works on any device with a modern web browser
 - **🚀 Scalability**: Handles leagues of any size efficiently
