@@ -213,8 +213,9 @@ def load_league():
                        for entry in analyzer.league_data['standings']['results']]
 
         try:
-            # Fetch manager squads
-            analyzer.fetch_manager_squads_batch(manager_ids)
+            # Fetch manager squads using aggressive mode for faster processing
+            analyzer.fetch_manager_squads_batch(
+                manager_ids, speed_mode='aggressive')
 
             # Save to cache for future use
             analyzer.save_manager_squads_cache(league_id, current_gw)
